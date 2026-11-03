@@ -1,0 +1,24 @@
+# Python / virtual environment
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Data (downloaded / generated – never commit patient data!)
+data/
+
+# Run artefacts
+outputs/
+logs/
+lightning_logs/
+*.pt
+*.pth
+*.fab
+
+# OS / editor
+.DS_Store
+__MACOSX/
+.idea/
+.vscode/

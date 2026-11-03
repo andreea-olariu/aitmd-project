@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install (CPU PyTorch)
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements-dev.txt
+          pip install -e fl_app
+
+      - name: Lint
+        run: .venv/bin/ruff check .
+
+      - name: Links in the docs
+        run: .venv/bin/python tests/check_links.py
+
+      - name: Unit tests
+        run: .venv/bin/python -m pytest -q tests
+
+      - name: Smoke test (split, 1 federated round, explanations)
+        run: bash tests/smoke_test.sh

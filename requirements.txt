@@ -1,0 +1,35 @@
+# ---------------------------------------------------------------------------
+# AITDM – Federated Learning starter kit
+# Python 3.11 – 3.13 is supported (Flower requires >= 3.11).
+#
+# Install with the helper script (recommended):
+#   bash scripts/setup_env.sh          (add --cpu for a CPU-only PyTorch)
+# Windows users: run everything inside WSL2 (Ubuntu), see docs/01_environment_setup.md
+# ---------------------------------------------------------------------------
+
+# --- Federated learning (Flower) ------------------------------------------
+# [simulation] pulls in Ray (Simulation Runtime used by `flwr run .`)
+# [dp] pulls in dp-accounting (privacy budget epsilon for differential privacy)
+flwr[simulation,dp]==1.41.0
+flwr-datasets[vision]==0.6.1
+
+# --- Deep learning ---------------------------------------------------------
+# For a CPU-only install use: --index-url https://download.pytorch.org/whl/cpu
+# (setup_env.sh --cpu does this for you)
+torch==2.14.1
+torchvision==0.29.1
+
+# --- Medical imaging -------------------------------------------------------
+monai==1.6.1
+
+# --- Data handling, metrics and plots -------------------------------------
+numpy>=1.26
+pandas>=2.1
+scikit-learn>=1.4
+matplotlib>=3.8
+tqdm>=4.66
+
+# --- Explainability (Stage 2: Grad-CAM, see docs/05_gradcam.md) -----------
+# pytorch-grad-cam: Grad-CAM, Grad-CAM++, Score-CAM, EigenCAM, ...
+# (pulls in opencv-python-headless and ttach automatically)
+grad-cam==1.5.7

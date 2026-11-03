@@ -1,0 +1,5 @@
+# Development / CI tools (not needed to run the project):
+#   pip install -r requirements-dev.txt
+-r requirements.txt
+pytest==8.3.5
+ruff==0.11.2
