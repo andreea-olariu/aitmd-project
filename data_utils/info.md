@@ -1,0 +1,1 @@
+{'positive': {'ricord': 200, 'bimcv': 4041}, 'negative': {'rsna': 200, 'bimcv': 4041}}

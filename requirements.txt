@@ -1,0 +1,12 @@
+
+flwr[simulation,dp]==1.41.0
+flwr-datasets[vision]==0.6.1
+torch==2.14.1
+torchvision==0.29.1
+monai==1.6.1
+numpy>=1.26
+pandas>=2.1
+scikit-learn>=1.4
+matplotlib>=3.8
+tqdm>=4.66
+grad-cam==1.5.7
