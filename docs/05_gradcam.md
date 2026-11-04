@@ -194,7 +194,7 @@ examples *it* gets wrong are a good list of genuinely hard cases.
 
 Below is one complete pass on the quick-start split (DermaMNIST 28 px, 3 clients, Dirichlet
 $\alpha = 0.3$, 10 rounds). Every number is a mean ± std over seeds 1, 2, 3, measured on the
-**validation** data (`bash experiments/reproduce_tutorials.sh t5` re-creates them).
+**validation** data.
 
 ### Iteration 0: train and find where it fails
 
@@ -382,9 +382,7 @@ maps = cam(x=images)   # (N, 1, H, W), already upsampled and normalised to [0, 1
 
 ### Not working with images?
 
-Grad-CAM needs convolutional feature maps. For **HAR** (skeleton or sensor sequences, tabular features), `explainability/feature_importance.py` measures which joints / statistics the model relies on (permutation importance, see [tutorial 6](06_har.md#5-explain-it)).
-
-For per-sample explanations use attribution methods such as **SHAP** (`pip install shap`) or **Integrated Gradients** (`pip install captum`). They tell you which joints, sensors or time steps drove a prediction. 
+Grad-CAM needs convolutional feature maps. For per-sample explanations use attribution methods such as **SHAP** (`pip install shap`) or **Integrated Gradients** (`pip install captum`). They tell you which joints, sensors or time steps drove a prediction. 
 
 Add the package to `requirements.txt` with a fixed version so your teammates get the same one.
 

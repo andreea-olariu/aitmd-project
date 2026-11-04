@@ -10,11 +10,12 @@ Starter code for the **AI for Trustworthy Decision Making** project. It gives yo
 3. **A tool to split any dataset in a biased (non-IID) way**, which simulates what
    real federated data looks like (different hospitals, devices, users, annotators).
 4. **Trust mechanisms ready to use:** 9 aggregation strategies (robust, fair, adaptive),
-   simulated attackers, differential privacy with ε reporting, Grad-CAM and feature importance.
-5. **Two data tracks:** medical images (MedMNIST) and Human Activity Recognition (skeleton CSVs).
-   Both use the same scripts and the same Flower app.
-6. **Reproducible experiments:** every run is seeded, and every number in the tutorials is a
-   mean ± std over seeds 1, 2, 3 that `experiments/reproduce_tutorials.sh` re-creates.
+   simulated attackers, differential privacy with ε reporting, Grad-CAM.
+5. **Reproducible experiments:** every run is seeded, and results are reported as
+   mean ± std over seeds 1, 2, 3.
+
+> **This fork** applies the kit to **COVIDx CXR-4** (binary COVID-19 detection from chest
+> X-rays). See [COVIDx CXR-4](#covidx-cxr-4) below for the data and its preprocessing.
 
 Everything is tested with **Flower 1.41**, PyTorch 2.14 and MONAI 1.6 on Python 3.12.
 
@@ -48,35 +49,48 @@ bash scripts/run_deployment_terminals.sh
 You can also start every component by hand in its own terminal; see
 [docs/02_running_flower.md](docs/02_running_flower.md).
 
-**HAR instead of images?** Install the zip from Moodle and replace step 2 with:
-
-```bash
-python data_splitting/get_data.py --har ~/Downloads/Demo_HAR.zip
-python data_splitting/split_data.py --input data/raw/har/train_client*.csv \
-    --label-col Action --sample-col IDSample --feature-cols '^J' \
-    --strategy group --group-col Camera --num-clients 3 --out data/partitions/har_camera
-bash scripts/run_simulation.sh data/partitions/har_camera
-```
-
-See [docs/06_har.md](docs/06_har.md).
-
 ---
 
 ## Data
 
-**No data is stored in this repository** (`data/` is git-ignored). You download what you choose:
+**No data is stored in this repository** (`data/` is git-ignored). Never commit data: removing
+it later does not remove it from the git history.
 
-| Dataset | What | Source and licence | How |
-|---|---|---|---|
-| DermaMNIST, PneumoniaMNIST, BloodMNIST, ... | 2D medical images, 28–224 px | [MedMNIST v2](https://medmnist.com/) (Yang et al., *Scientific Data* 2023), public on Zenodo. Licence per dataset, e.g. DermaMNIST CC BY-NC 4.0 (from HAM10000), PneumoniaMNIST CC BY 4.0 | automatic with `split_data.py --dataset <name>`, or in advance with `get_data.py --medmnist <name>` |
-| HAR skeletons | 3D skeleton sequences, 5 actions, 3 cameras | subset of [NTU RGB+D](https://rose1.ntu.edu.sg/dataset/actionRecognition/) (Shahroudy et al., CVPR 2016), academic use after accepting its Release Agreement, **not** redistributable | the course subset from Moodle: `get_data.py --har <zip>`; or build it from the official archive: `get_data.py --ntu <zip>` (choose `--actions`, `--cameras`), see [tutorial 6](docs/06_har.md#1-get-the-data) |
+### COVIDx CXR-4
 
-```bash
-python data_splitting/get_data.py --list      # what is available / already downloaded
+84,818 chest X-rays (positive / negative for COVID-19) from 8 sources, with official
+train / val / test splits. Put the dataset in `data/raw/` as distributed:
+
+```text
+data/raw/{train,val,test}/<images>
+data/raw/{train,val,test}.txt     <patient_id> <filename> <label> <source>
 ```
 
-Never commit data to your own repository either: removing it later does not remove it from the
-git history.
+Then convert it once to grayscale 256 px PNGs plus a manifest (about 2 minutes):
+
+```bash
+python data_splitting/preprocess_covidx.py              # -> data/processed/256/
+```
+
+| Output | Content |
+|---|---|
+| `data/processed/256/{train,val,test}/*.png` | grayscale, centre-cropped to a square, 256 × 256 |
+| `data/processed/256/manifest.csv` | one row per image: split, path, label, source, patient_id, original size |
+| `data/processed/256/summary.json` | counts per split / source / label, patient overlap between splits |
+
+Two properties of this dataset drive every design decision:
+
+* **The source almost determines the label in training**: rsna is 100 % negative,
+  stonybrook / ricord / sirm 100 % positive, bimcv 98.5 % positive, but the test set is
+  95 % bimcv with a 50 / 50 split. A model can score well on train / val by recognising the
+  hospital instead of the disease. Report per-source test metrics.
+* **Prior shift**: train is 84 % positive, val and test are balanced.
+
+Images are centre-cropped rather than padded because only some sources are non-square:
+black bars would reveal the source.
+
+MedMNIST still works for trying out the federated pipeline:
+`split_data.py --dataset <name>` downloads it automatically.
 
 ---
 
@@ -89,7 +103,8 @@ git history.
 | 3 | [Biased data splits](docs/03_biased_data_splits.md) | IID, label skew (Dirichlet), pathological, quantity skew, natural (per-subject) splits, feature skew, label noise |
 | 4 | [Aggregation strategies](docs/04_aggregation_strategies.md) | FedAvg, FedProx, FedAvgM, FedAdam/Yogi, FedMedian, FedTrimmedAvg, Krum, q-FedAvg, differential privacy; attack experiments |
 | 5 | [Grad-CAM](docs/05_gradcam.md) | Explaining predictions, choosing the layer, sanity checks, what to report, and the iterative process: from errors to a better model (worked example) |
-| 6 | [Human Activity Recognition](docs/06_har.md) | The HAR skeleton data end to end: splitting, training, trust experiments, feature importance |
+
+The tutorials use MedMNIST examples; the commands and concepts carry over to COVIDx.
 
 ---
 
@@ -111,19 +126,17 @@ AITDM_FLOWER_PROJECT_TUTORIAL/
 │   ├── submit_run.sh            <- last terminal: submit the app (flwr run)
 │   └── stop_flower.sh           <- kill all Flower processes (ports in use, stuck runs)
 ├── data_splitting/
-│   ├── get_data.py              <- download MedMNIST / install the HAR zip into data/raw/
+│   ├── preprocess_covidx.py     <- COVIDx CXR-4 -> 256 px grayscale PNGs + manifest.csv
 │   ├── split_data.py            <- CLI: dataset (MedMNIST / .npz / .csv) -> biased client partitions + plots
 │   └── partitioning.py          <- the splitting algorithms (reusable functions)
 ├── experiments/
 │   ├── run_seeds.py             <- one federated experiment with seeds 1, 2, 3 -> mean ± std
 │   ├── centralised.py           <- centralised baseline (same model, pooled client data)
 │   ├── summarize.py             <- comparison tables of several experiments
-│   ├── evaluation.py            <- validation (pooled + per client) and test metrics, shared by all
-│   └── reproduce_tutorials.sh   <- re-creates every number in the tutorials
+│   └── evaluation.py            <- validation (pooled + per client) and test metrics, shared by all
 ├── explainability/
 │   ├── error_analysis.py        <- where does the model fail? per class / client, hardest examples
-│   ├── gradcam.py               <- Grad-CAM heat maps (image models)
-│   └── feature_importance.py    <- permutation importance (feature models, e.g. HAR)
+│   └── gradcam.py               <- Grad-CAM heat maps (image models)
 ├── fl_app/                      <- the Flower app (what `flwr run` executes)
 │   ├── pyproject.toml           <- app metadata + run configuration (rounds, lr, strategy, ...)
 │   └── aitdm_fl/
@@ -153,7 +166,7 @@ AITDM_FLOWER_PROJECT_TUTORIAL/
 | *Stage 2 – robustness / data poisoning* | `malicious-clients='4'` (model poisoning) or `split_data.py --label-noise` (data poisoning) + robust strategies |
 | *Stage 2 – fairness* | `strategy='qfedavg'`, per-client evaluation, quantity-skew splits |
 | *Improving the model iteratively* | `explainability/error_analysis.py` + Grad-CAM + `loss-weighting='balanced'` ([worked example](docs/05_gradcam.md#the-iterative-process-from-explanation-to-a-better-model)) |
-| *Stage 2 – interpretability* | `python explainability/gradcam.py --run outputs/<run>` ([tutorial 5](docs/05_gradcam.md)); HAR: `explainability/feature_importance.py` ([tutorial 6](docs/06_har.md#5-explain-it)) |
+| *Stage 2 – interpretability* | `python explainability/gradcam.py --run outputs/<run>` ([tutorial 5](docs/05_gradcam.md)) |
 | *Team work – cross-evaluation* | Each member gets a partition (`client_<i>.npz`) and evaluates the others' models on their own validation data; the shared `test.npz` gives the final numbers |
 
 ---

@@ -125,7 +125,7 @@ For *data* poisoning (wrong labels instead of wrong weights), use
 ### Experiment: 1 attacker out of 5 clients
 
 DermaMNIST, IID split over 5 clients (`--num-clients 5 --strategy iid`), 5 rounds, client 4 is
-malicious. Mean ± std over seeds 1, 2, 3 (`bash experiments/reproduce_tutorials.sh t4`):
+malicious. Mean ± std over seeds 1, 2, 3:
 
 | Attack | Strategy | Val bal. acc. | Test acc. | Test bal. acc. | Test macro-F1 |
 |---|---|---|---|---|---|

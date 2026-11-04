@@ -354,7 +354,6 @@ Both scripts evaluate every model in the same way (`experiments/evaluation.py`):
 Small differences of results between machines (or between simulation and deployment) remain
 possible: floating-point sums depend on the order in which client updates arrive.
 
-`bash experiments/reproduce_tutorials.sh` re-creates every number in these tutorials this way.
 
 ---
 
@@ -365,10 +364,10 @@ The absolute path towards all those files is `fl_app/aitdm_fl/`.
 | I want to... | Edit |
 |---|---|
 | use another model | `build_model()` in `task.py` (any MONAI / torchvision network; `build_mlp()` for feature data) |
-| use my own dataset | images: `split_data.py --input data.npz`; CSV (e.g. HAR): `split_data.py --input *.csv`, see [tutorial 6](06_har.md). Other formats: `load_npz_arrays()` / `load_client_data()` / `load_test_data()` in `task.py` |
+| use my own dataset | images: `split_data.py --input data.npz`; CSV: `split_data.py --input *.csv`. Other formats: `load_npz_arrays()` / `load_client_data()` / `load_test_data()` in `task.py` |
 | use or write another aggregation strategy | `build_strategy()` in `server_app.py`, see [tutorial 4](04_aggregation_strategies.md) |
 | find where the model fails (per class, per client, hardest examples) | `python explainability/error_analysis.py --run outputs/<run>`, see [tutorial 5](05_gradcam.md#the-iterative-process-from-explanation-to-a-better-model) |
-| explain the trained model | images: `python explainability/gradcam.py --run outputs/<run>` ([tutorial 5](05_gradcam.md)); features: `explainability/feature_importance.py` ([tutorial 6](06_har.md)) |
+| explain the trained model | images: `python explainability/gradcam.py --run outputs/<run>` ([tutorial 5](05_gradcam.md)) |
 | send extra values to clients every round | `train_config=ConfigRecord({...})` in `server_app.py`, read `msg.content["config"]` in `client_app.py` |
 | report extra metrics | add them to the `MetricRecord` in `client_app.py` / `evaluate()` in `task.py` |
 

@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # End-to-end smoke test on synthetic data (no download, no course data):
 # split -> 1 federated round -> metrics.json exists -> explainability scripts
-# -> centralised baseline, for an image dataset and a HAR-like CSV.
+# -> centralised baseline, on a synthetic image dataset.
 #
 #   bash tests/smoke_test.sh        (about 2 minutes; run by the CI as well)
 # ---------------------------------------------------------------------------
@@ -32,15 +32,5 @@ python explainability/gradcam.py --run "$WORK/run_img" --num-images 4 --out "$WO
 python experiments/centralised.py --partitions "$WORK/img" --epochs 1 --seeds 1 --name smoke-central \
     >/dev/null
 rm -rf outputs/experiments/smoke-central
-
-echo ">>> HAR-like CSV: split, 1 round, feature importance"
-python data_splitting/split_data.py --input "$WORK/skeletons.csv" --label-col Action \
-    --sample-col IDSample --feature-cols '^J' --strategy group --group-col Camera \
-    --num-clients 3 --out "$WORK/har" >/dev/null
-SAVE_DIR="$WORK/run_har" bash scripts/run_simulation.sh "$WORK/har" "num-server-rounds=1" >"$WORK/har.log" 2>&1 \
-    || { tail -40 "$WORK/har.log"; exit 1; }
-check "$WORK/run_har"
-python explainability/feature_importance.py --run "$WORK/run_har" --repeats 1 \
-    --out "$WORK/fi.png" >/dev/null
 
 echo ">>> SMOKE TEST PASSED"

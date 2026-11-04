@@ -11,7 +11,7 @@ Examples (run from the repository root, with the venv activated):
     python data_splitting/split_data.py --dataset dermamnist --num-clients 3 \
         --strategy dirichlet --alpha 0.3 --feature-skew --label-noise 0,0,0.2
 
-    # Your own CSV(s) (e.g. HAR skeletons, see docs/06_har.md): one client per camera
+    # Your own CSV(s), several rows per sample: one client per camera
     python data_splitting/split_data.py --input data/raw/har/train_client*.csv \
         --label-col Action --sample-col IDSample --feature-cols '^J' \
         --strategy group --group-col Camera --num-clients 3

@@ -120,8 +120,7 @@ def main() -> None:
     class_names = json.loads(meta_path.read_text())["class_names"] if meta_path.exists() else None
 
     if meta_path.exists() and json.loads(meta_path.read_text()).get("data_type") == "features":
-        raise SystemExit("Grad-CAM needs images. For feature data (e.g. HAR) use "
-                         "explainability/feature_importance.py instead.")
+        raise SystemExit("Grad-CAM needs images; this partition holds feature vectors.")
 
     # 1. Model
     model = model_from_test_set(str(args.partitions))

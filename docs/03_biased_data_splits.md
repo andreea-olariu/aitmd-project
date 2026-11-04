@@ -35,7 +35,6 @@ You need **one data source**:
   * one or more `.csv` files with one row per sample, or several rows per sample (e.g. video
     frames, using `--sample-col`). Besides the CSV partitions, each sample is turned into a
     feature vector in `client_<i>.npz`, so the Flower app can train on it.
-    See [tutorial 6](06_har.md) for the HAR skeleton data.
 
 It writes to `data/partitions/<strategy>/` (or `--out <folder>`):
 
@@ -151,10 +150,6 @@ python data_splitting/split_data.py --input data/raw/har/train_client*.csv \
   so that client sizes stay balanced. With several input files, `--group-col source_file` gives
   one client per file.
 
-The full HAR walkthrough is in [tutorial 6](06_har.md).
-
-![Group split, HAR](images/split_group_har.png)
-
 Use the most natural "owner" your data has. The course HAR files have `Camera` and, after
 loading several files, `source_file`; they have no subject id. (If your dataset has one,
 `--group-col subject` simulates one phone per person.) For NPZ data, store the group array in the
@@ -174,7 +169,6 @@ python data_splitting/split_data.py --input data/raw/har/train_client*.csv \
 ```
 
 Cameras 1 and 2 become the two clients; every sequence of camera 3 goes to the test set.
-[Tutorial 6](06_har.md#a-camera-no-client-has-seen) compares both test sets.
 
 ---
 
@@ -228,8 +222,7 @@ done
 python experiments/summarize.py outputs/experiments/iid5-fedavg outputs/experiments/pathological5-fedavg --with-test
 ```
 
-Results (mean ± std over seeds 1, 2, 3; `bash experiments/reproduce_tutorials.sh t3` re-creates
-them). Validation = all clients' validation sets; the test set is evaluated once per run:
+Results (mean ± std over seeds 1, 2, 3). Validation = all clients' validation sets; the test set is evaluated once per run:
 
 | Split | Strategy | Val bal. acc. | Worst client val acc. | Test acc. | Test bal. acc. | Test macro-F1 |
 |---|---|---|---|---|---|---|
