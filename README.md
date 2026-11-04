@@ -131,6 +131,9 @@ AITDM_FLOWER_PROJECT_TUTORIAL/
 │   └── partitioning.py          <- the splitting algorithms (reusable functions)
 ├── experiments/
 │   ├── run_seeds.py             <- one federated experiment with seeds 1, 2, 3 -> mean ± std
+│   ├── train_covidx.py          <- COVIDx centralised baseline (torchvision CNN, per-source metrics)
+│   ├── baselines_covidx.py      <- COVIDx sanity floors: majority class, source-only regression
+│   ├── evaluate_covidx.py       <- COVIDx: test-set scores of trained runs (no retraining)
 │   ├── centralised.py           <- centralised baseline (same model, pooled client data)
 │   ├── summarize.py             <- comparison tables of several experiments
 │   └── evaluation.py            <- validation (pooled + per client) and test metrics, shared by all
@@ -140,6 +143,7 @@ AITDM_FLOWER_PROJECT_TUTORIAL/
 ├── fl_app/                      <- the Flower app (what `flwr run` executes)
 │   ├── pyproject.toml           <- app metadata + run configuration (rounds, lr, strategy, ...)
 │   └── aitdm_fl/
+│       ├── covidx.py            <- COVIDx: manifest dataset, torchvision model, training, metrics
 │       ├── task.py              <- models (MONAI CNN / MLP), data loading, train / evaluate (no Flower here)
 │       ├── client_app.py        <- ClientApp: local training & evaluation (+ optional attacker)
 │       └── server_app.py        <- ServerApp: aggregation strategy, DP, global evaluation
